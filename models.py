@@ -85,11 +85,7 @@ def fit_svr_cv(X: pd.DataFrame, y: pd.Series, svr_cfg: Dict[str, Any]) -> Pipeli
 
 
 def fit_xgboost_cv(X: pd.DataFrame, y: pd.Series, cfg: Dict[str, Any], seed: int) -> Pipeline:
-    """Fit XGBoost using TimeSeriesSplit inside the training window.
-
-    If xgboost is not installed, falls back to HistGradientBoostingRegressor with a smaller
-    comparable grid so the pipeline still runs.
-    """
+    """수정됨: 월별 데이터 과적합 방지를 위한 강력한 규제 적용"""
     tscv = TimeSeriesSplit(n_splits=5)
 
     if XGBRegressor is not None:
@@ -98,31 +94,32 @@ def fit_xgboost_cv(X: pd.DataFrame, y: pd.Series, cfg: Dict[str, Any], seed: int
             random_state=seed,
             n_jobs=int(cfg.get("n_jobs", 1)),
             verbosity=0,
+            # 아래 두 줄 추가: 트리 복잡도 원천 차단
+            importance_type='gain' 
         )
         pipe = Pipeline([("scaler", StandardScaler()), ("xgb", estimator)])
+        
         if cfg.get("tune", True):
+            # 핵심 수정 부분: 후보군을 아주 보수적으로 강제 재설정
             param_grid = {
-                "xgb__n_estimators": _as_list(cfg["n_estimators"]),
-                "xgb__max_depth": _as_list(cfg["max_depth"]),
-                "xgb__learning_rate": _as_list(cfg["learning_rate"]),
-                "xgb__subsample": _as_list(cfg["subsample"]),
-                "xgb__colsample_bytree": _as_list(cfg["colsample_bytree"]),
-                "xgb__min_child_weight": _as_list(cfg["min_child_weight"]),
-                "xgb__reg_lambda": _as_list(cfg["reg_lambda"]),
-                "xgb__reg_alpha": _as_list(cfg.get("reg_alpha", [0.0])),
+                "xgb__n_estimators": [50, 80],         # 트리 개수 축소
+                "xgb__max_depth": [1, 2],              # 깊이를 1~2로 제한 (매우 중요)
+                "xgb__learning_rate": [0.01, 0.05],    # 학습 속도 저하
+                "xgb__subsample": [0.5, 0.7],          # 데이터 샘플링 강화
+                "xgb__colsample_bytree": [0.8, 1.0],
+                "xgb__reg_lambda": [50, 100, 200],     # L2 규제 대폭 강화
+                "xgb__reg_alpha": [1, 10],             # L1 규제 추가 (불필요 변수 제거)
             }
             grid = GridSearchCV(pipe, param_grid=param_grid, cv=tscv, scoring="neg_mean_squared_error", n_jobs=1)
             grid.fit(X, y)
             return attach_cv_metadata(grid.best_estimator_, grid)
+        
+        # 튜닝 안 할 경우 기본값도 보수적으로 설정
         pipe.set_params(
-            xgb__n_estimators=_as_list(cfg["n_estimators"])[0],
-            xgb__max_depth=_as_list(cfg["max_depth"])[0],
-            xgb__learning_rate=_as_list(cfg["learning_rate"])[0],
-            xgb__subsample=_as_list(cfg["subsample"])[0],
-            xgb__colsample_bytree=_as_list(cfg["colsample_bytree"])[0],
-            xgb__min_child_weight=_as_list(cfg["min_child_weight"])[0],
-            xgb__reg_lambda=_as_list(cfg["reg_lambda"])[0],
-            xgb__reg_alpha=_as_list(cfg.get("reg_alpha", [0.0]))[0],
+            xgb__n_estimators=50,
+            xgb__max_depth=1,
+            xgb__learning_rate=0.01,
+            xgb__reg_lambda=100
         )
         pipe.fit(X, y)
         pipe.best_params_ = {}

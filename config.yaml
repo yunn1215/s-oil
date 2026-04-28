@@ -1,43 +1,159 @@
-data:
-  monthly_dataset_path: monthly_modeling_dataset.csv
+experiment_name: "reduced_oil_snp_npi2_no_lstm"
 
-project:
-  start_month: "2005-01"
-  end_month: "2026-03"
-  train_end_month: "2019-12"
-  rolling_window_months: 180
-  max_lag_for_selection: 12
-  main_lag: 2
-  robust_lag_orders: []
-  robust_rolling_windows: []
-  robust_oil_lookbacks: []
+target_col: "log_rv"
 
-model:
-  random_seed: 42
-  run_lstm: false
+output_dir: "results/reduced_oil_snp_npi2_no_lstm"
+
+# =====================================================
+# 1. 실행 스위치
+# =====================================================
+run_pipeline: true
+run_core_no_xgb: true
+run_xgboost: true
+run_lstm: false
+run_lstm_only: false
+
+# =====================================================
+# 2. 시차 설정
+# =====================================================
+lag_setting:
+  mode: "fixed"
+
+  # 종속변수 KOSPI realized volatility의 자기시차
+  rv_lags:
+    - 1
+    - 2
+
+  # 유가충격 변수는 1개월 전 값만 사용
+  oil_lags:
+    - 1
+
+  # 이번 reduced oil model에서 사용할 유가변수 2개
+  oil_features:
+    - SNP
+    - NPI2
+
+  # 최종적으로 모델에 들어가는 설명변수
+  final_feature_cols:
+    - log_rv_lag1
+    - log_rv_lag2
+    - SNP_lag1
+    - NPI2_lag1
+
+# =====================================================
+# 3. 유가충격 변수 생성 설정
+# =====================================================
+oil_shock_setting:
+  shock_lookback_months: 36
+
+  make_npi: true
+  make_anp: true
+  make_snp: true
+  make_npi2: true
+
+  # 단, 최종 모델에는 SNP, NPI2만 사용
+  use_oil_features:
+    - SNP
+    - NPI2
+
+# =====================================================
+# 4. Rolling forecast 설정
+# =====================================================
+rolling_forecast:
+  enabled: true
+
+  # 기존에 네가 쓰던 rolling window 길이 그대로 넣어라.
+  # 예: 중국 논문 방식이면 176, 네 기존 코드에서 쓰던 값이 있으면 그 값 유지.
+  window_size: 176
+
+  refit_each_window: true
+
+# =====================================================
+# 5. 전처리 설정
+# =====================================================
+preprocessing:
+  scale_features: true
+  scaler: "standard"
+
+  scale_target: false
+
+  drop_na_after_lagging: true
+
+# =====================================================
+# 6. 모델 실행 설정
+# =====================================================
+models:
+  mlr:
+    enabled: true
+
+  lasso:
+    enabled: true
+
+  svr:
+    enabled: true
 
   xgboost:
-    tune: false
-    n_estimators: [100]
-    max_depth: [2]
-    learning_rate: [0.05]
-    subsample: [0.8]
-    colsample_bytree: [0.8]
-    min_child_weight: [1]
-    reg_lambda: [1.0]
-    reg_alpha: [0.0]
-    n_jobs: -1
+    enabled: true
 
   lstm:
-    sequence_length: [3]
-    hidden_units: [8]
-    dropout: [0.2]
-    learning_rate: [0.001]
-    batch_size: [8]
-    epochs: 100
-    patience: 10
-    seeds: [42]
+    enabled: false
 
-evaluation:
-  mape_on_level: false
-  dmspes_lambdas: [1.0, 0.9]
+# =====================================================
+# 7. 하이퍼파라미터 튜닝 설정
+# =====================================================
+hyperparameter_tuning:
+  enabled: true
+  cv_type: "timeseries"
+  n_splits: 5
+  scoring: "neg_mean_squared_error"
+
+  lasso:
+    enabled: true
+    param_grid:
+      alpha:
+        - 0.0001
+        - 0.0003
+        - 0.001
+        - 0.003
+        - 0.01
+        - 0.03
+        - 0.1
+        - 0.3
+        - 1.0
+        - 3.0
+        - 10.0
+
+  svr:
+    enabled: true
+    param_grid:
+      kernel:
+        - "rbf"
+      C:
+        - 0.1
+        - 1
+        - 10
+      epsilon:
+        - 0.001
+        - 0.01
+        - 0.1
+      gamma:
+        - "scale"
+
+  xgboost:
+    enabled: true
+    param_grid:
+      n_estimators:
+        - 100
+        - 200
+      max_depth:
+        - 2
+        - 3
+      learning_rate:
+        - 0.05
+        - 0.1
+      subsample:
+        - 0.8
+      colsample_bytree:
+        - 0.8
+      reg_lambda:
+        - 1

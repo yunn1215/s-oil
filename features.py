@@ -18,8 +18,8 @@ class DataBundle:
     oos_df: pd.DataFrame
 
 
-REQUIRED_BASE_COLUMNS = ["month", "log_rv", "NPI", "ANP", "SNP", "NPI2"]
-OIL_VARS = ["NPI", "ANP", "SNP", "NPI2"]
+REQUIRED_BASE_COLUMNS = ["month", "log_rv", "NPI", "ANP", "SNP", "NPI2"] # 원본 데이터 컬럼은 유지
+OIL_VARS = ["SNP", "NPI2"] # 모델 학습에 사용할 변수만 정의
 
 
 def load_monthly_modeling_dataset(path: str | Path, max_lag: int = 12) -> pd.DataFrame:

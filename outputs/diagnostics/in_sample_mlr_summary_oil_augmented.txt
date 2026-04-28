@@ -1,32 +1,27 @@
                             OLS Regression Results                            
 ==============================================================================
-Dep. Variable:                 log_rv   R-squared:                       0.522
-Model:                            OLS   Adj. R-squared:                  0.509
-Method:                 Least Squares   F-statistic:                     37.85
-Date:                Tue, 28 Apr 2026   Prob (F-statistic):           4.07e-26
-Time:                        23:51:07   Log-Likelihood:                -166.74
-No. Observations:                 179   AIC:                             345.5
-Df Residuals:                     173   BIC:                             364.6
-Df Model:                           5                                         
+Dep. Variable:                 log_rv   R-squared:                       0.497
+Model:                            OLS   Adj. R-squared:                  0.488
+Method:                 Least Squares   F-statistic:                     57.55
+Date:                Wed, 29 Apr 2026   Prob (F-statistic):           6.21e-26
+Time:                        00:34:55   Log-Likelihood:                -171.46
+No. Observations:                 179   AIC:                             350.9
+Df Residuals:                     175   BIC:                             363.7
+Df Model:                           3                                         
 Covariance Type:            nonrobust                                         
 ===============================================================================
                   coef    std err          t      P>|t|      [0.025      0.975]
 -------------------------------------------------------------------------------
-const          -1.5926      0.371     -4.287      0.000      -2.326      -0.859
-log_rv_lag1     0.5293      0.074      7.180      0.000       0.384       0.675
-log_rv_lag2     0.2245      0.073      3.057      0.003       0.080       0.369
-NPI_lag1        0.2699      2.579      0.105      0.917      -4.820       5.360
-ANP_lag1        0.1788      1.501      0.119      0.905      -2.784       3.141
-SNP_lag1        0.4487      1.331      0.337      0.737      -2.179       3.076
-NPI2_lag1       0.2277      0.248      0.918      0.360      -0.262       0.717
+const          -2.0309      0.349     -5.816      0.000      -2.720      -1.342
+log_rv_lag1     0.6848      0.054     12.649      0.000       0.578       0.792
+SNP_lag1        0.6493      1.153      0.563      0.574      -1.625       2.924
+NPI2_lag1       0.2486      0.161      1.544      0.124      -0.069       0.566
 ==============================================================================
-Omnibus:                       19.028   Durbin-Watson:                   2.106
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):               26.277
-Skew:                           0.645   Prob(JB):                     1.97e-06
-Kurtosis:                       4.364   Cond. No.                     8.21e+17
+Omnibus:                       13.578   Durbin-Watson:                   2.340
+Prob(Omnibus):                  0.001   Jarque-Bera (JB):               15.654
+Skew:                           0.561   Prob(JB):                     0.000399
+Kurtosis:                       3.916   Cond. No.                         157.
 ==============================================================================
 
 Notes:
 [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
-[2] The smallest eigenvalue is 2.19e-32. This might indicate that there are
-strong multicollinearity problems or that the design matrix is singular.
