@@ -1,0 +1,28 @@
+# Optional. The pipeline runs without this file because defaults are built into utils.py.
+# To use it, rename this file to config.yaml and edit values.
+
+data:
+  monthly_dataset_path: monthly_modeling_dataset.csv
+
+project:
+  start_month: "2005-01"
+  end_month: "2026-03"
+  train_end_month: "2019-12"
+  rolling_window_months: 180
+  max_lag_for_selection: 12
+  main_lag: 1
+  robust_lag_orders: [2, 3]
+  robust_rolling_windows: [154, 165, 187, 198]
+
+model:
+  random_seed: 42
+  run_lstm: false  # Set true only if TensorFlow is installed and you have enough runtime.
+
+  # To speed up a test run, you may reduce the XGBoost grid below.
+  xgboost:
+    tune: true
+    n_jobs: 1
+
+evaluation:
+  mape_on_level: false
+  dmspes_lambdas: [1.0, 0.9]

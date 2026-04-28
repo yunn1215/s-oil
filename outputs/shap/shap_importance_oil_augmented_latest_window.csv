@@ -1,0 +1,7 @@
+feature,mean_abs_shap
+log_rv_lag1,0.31109923
+log_rv_lag2,0.15457997
+NPI_lag1,0.011048699
+ANP_lag1,0.0070535364
+SNP_lag1,0.003091638
+NPI2_lag1,0.0

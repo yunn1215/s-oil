@@ -1,0 +1,43 @@
+data:
+  monthly_dataset_path: monthly_modeling_dataset.csv
+
+project:
+  start_month: "2005-01"
+  end_month: "2026-03"
+  train_end_month: "2019-12"
+  rolling_window_months: 180
+  max_lag_for_selection: 12
+  main_lag: 2
+  robust_lag_orders: []
+  robust_rolling_windows: []
+  robust_oil_lookbacks: []
+
+model:
+  random_seed: 42
+  run_lstm: false
+
+  xgboost:
+    tune: false
+    n_estimators: [100]
+    max_depth: [2]
+    learning_rate: [0.05]
+    subsample: [0.8]
+    colsample_bytree: [0.8]
+    min_child_weight: [1]
+    reg_lambda: [1.0]
+    reg_alpha: [0.0]
+    n_jobs: -1
+
+  lstm:
+    sequence_length: [3]
+    hidden_units: [8]
+    dropout: [0.2]
+    learning_rate: [0.001]
+    batch_size: [8]
+    epochs: 100
+    patience: 10
+    seeds: [42]
+
+evaluation:
+  mape_on_level: false
+  dmspes_lambdas: [1.0, 0.9]

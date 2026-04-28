@@ -1,0 +1,7 @@
+feature,selection_frequency
+log_rv_lag1,1.0
+log_rv_lag2,1.0
+NPI_lag1,0.22972972972972974
+ANP_lag1,0.5135135135135135
+SNP_lag1,0.581081081081081
+NPI2_lag1,0.6216216216216216

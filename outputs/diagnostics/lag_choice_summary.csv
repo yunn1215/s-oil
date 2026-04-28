@@ -1,0 +1,2 @@
+best_lag_by_bic,main_lag_used,note
+3,2,main_lag_used comes from config/default. Check BIC table before changing it.
